@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="ja" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>マネー徹底チェックリスト | T @tanetane2026</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Google Fonts: Inter & Noto Sans JP -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Noto+Sans+JP:wght@400;500;700;800&display=swap" rel="stylesheet">
+  
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Noto Sans JP"', 'Inter', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              50: '#ecfdf5',
+              100: '#d1fae5',
+              500: '#10b981',
+              600: '#059669',
+              700: '#047857',
+              900: '#064e3b',
+            },
+            navy: {
+              800: '#1e293b',
+              900: '#0f172a',
+              950: '#020617',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Custom Checkbox Animation */
+    .custom-checkbox input:checked + div {
+      background-color: #10b981;
+      border-color: #10b981;
+    }
+    .custom-checkbox input:checked + div svg {
+      display: block;
+    }
+
+    /* Print styling rules */
+    @media print {
+      body {
+        background: white !important;
+        color: black !important;
+        padding: 0 !important;
+      }
+      .no-print {
+        display: none !important;
+      }
+      .print-shadow-none {
+        box-shadow: none !important;
+        border: 1px solid #cbd5e1 !important;
+      }
+      .page-break-before {
+        page-break-before: always;
+      }
+    }
+  </style>
+</head>
+<body class="bg-slate-900 text-slate-100 font-sans min-h-screen flex flex-col justify-between selection:bg-brand-500 selection:text-white">
+
+  <!-- Header / Navigation -->
+  <header class="bg-navy-950/80 backdrop-blur-md border-b border-slate-800 sticky top-0 z-50 no-print">
+    <div class="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-brand-600 to-emerald-400 flex items-center justify-center font-bold text-slate-900 shadow-md">
+          <i class="fa-solid fa-piggy-bank text-xl text-slate-950"></i>
+        </div>
+        <div>
+          <div class="font-bold text-sm sm:text-base text-slate-100 leading-tight">T | エンジニアの資産形成術</div>
+          <div class="text-xs text-emerald-400">@tanetane2026</div>
+        </div>
+      </div>
+      
+      <div class="flex items-center space-x-2">
+        <button onclick="window.print()" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-2 rounded-lg transition border border-slate-700 flex items-center space-x-1">
+          <i class="fa-solid fa-print"></i>
+          <span class="hidden sm:inline">印刷/PDF</span>
+        </button>
+        <button onclick="shareOnX()" class="text-xs bg-sky-500 hover:bg-sky-400 text-white font-semibold px-3 py-2 rounded-lg transition flex items-center space-x-1 shadow-sm">
+          <i class="fa-brands fa-x-twitter"></i>
+          <span class="hidden sm:inline">結果をポスト</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Hero Banner -->
+  <section class="bg-gradient-to-b from-navy-950 via-slate-900 to-slate-900 pt-8 pb-6 px-4 border-b border-slate-800/60">
+    <div class="max-w-4xl mx-auto text-center space-y-3">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-semibold">
+        <i class="fa-solid fa-wand-magic-sparkles"></i> リアルタイムAI自動診断つき
+      </div>
+      <h1 class="text-2xl sm:text-4xl font-extrabold text-white tracking-tight leading-snug">
+        マネー徹底チェックリスト
+      </h1>
+      <p class="text-xs sm:text-base text-slate-400 max-w-2xl mx-auto leading-relaxed">
+        〜知らないと年間数十万損する！エンジニア目線の資産防衛・最適化診断〜
+      </p>
+    </div>
+  </section>
+
+  <!-- Sticky Live Score Header Bar -->
+  <div class="sticky top-[57px] z-40 bg-slate-800/95 backdrop-blur border-b border-slate-700/80 shadow-lg px-4 py-3 no-print">
+    <div class="max-w-4xl mx-auto flex items-center justify-between gap-4">
+      <!-- Progress & Count -->
+      <div class="flex-1">
+        <div class="flex justify-between items-center text-xs mb-1.5 font-medium">
+          <span class="text-slate-300">達成率: <span id="progress-percent" class="text-emerald-400 font-bold text-sm">0</span>%</span>
+          <span class="text-slate-400"><span id="checked-count" class="text-white font-bold text-sm">0</span> / 15 項目クリア</span>
+        </div>
+        <div class="w-full bg-slate-900 rounded-full h-2.5 overflow-hidden border border-slate-700">
+          <div id="progress-bar" class="bg-gradient-to-r from-emerald-500 to-teal-400 h-2.5 rounded-full transition-all duration-300 ease-out" style="width: 0%"></div>
+        </div>
+      </div>
+
+      <!-- Live Grade Badge -->
+      <div class="flex items-center bg-slate-900 px-3 py-1.5 rounded-lg border border-slate-700 space-x-2">
+        <div class="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">現在のランク</div>
+        <div id="live-grade" class="text-base font-black text-emerald-400">C</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content Container -->
+  <main class="max-w-4xl mx-auto px-4 py-8 space-y-10 flex-1">
+
+    <!-- Checklist Form -->
+    <div class="space-y-8">
+
+      <!-- Zone 1 -->
+      <div class="bg-slate-800/80 rounded-2xl border border-slate-700/80 overflow-hidden shadow-xl print-shadow-none">
+        <div class="bg-gradient-to-r from-emerald-950/80 to-slate-800 px-6 py-4 border-b border-slate-700/80 flex items-center justify-between">
+          <div class="flex items-center space-x-3">
+            <span class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-sm border border-emerald-500/30">Z1</span>
+            <h2 class="text-base sm:text-lg font-bold text-white">ゾーン1：固定費の最適化</h2>
+          </div>
+          <span class="text-xs text-emerald-400 font-medium bg-emerald-950 px-2.5 py-1 rounded-full border border-emerald-800">目標: 年間30万削減</span>
+        </div>
+
+        <div class="p-4 sm:p-6 space-y-4">
+          
+          <!-- Item 1 -->
+          <label class="custom-checkbox flex items-start gap-3.5 p-3 rounded-xl bg-slate-900/50 hover:bg-slate-900 border border-slate-700/50 hover:border-slate-600 transition cursor-pointer">
+            <input type="checkbox" data-zone="1" data-impact="100000" class="sr-only" onchange="calculateScore()">
+            <div class="w-5 h-5 rounded border-2 border-slate-500 flex-shrink-0 flex items-center justify-center mt-0.5 transition">
+              <svg class="w-3.5 h-3.5 text-slate-950 font-bold hidden fill-current" viewBox="0 0 20 20"><path d="M0 11l2-2 5 5L18 3l2 2L7 18z"/></svg>
+            </div>
+            <div class="space-y-0.5">
+              <div class="text-sm font-semibold text-slate-100 flex items-center gap-2 flex-wrap">
+                大手キャリアから格安SIM/格安プランへ変更している
+                <span class="text-[10px] bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded border border-emerald-500/20">即効性高</span>
+              </div>
+              <p class="text-xs text-slate-400 leading-relaxed">ahamo, LINEMO, povo, 楽天モバイルなどを活用し通信費を月3,000円以下に抑制。</p>
+            </div>
+          </label>
+
+          <!-- Item 2 -->
+          <label class="custom-checkbox flex items-start gap-3.5 p-3 rounded-xl bg-slate-900/50 hover:bg-slate-900 border border-slate-700/50 hover:border-slate-600 transition cursor-pointer">
+            <input type="checkbox" data-zone="1" data-impact="20000" class="sr-only" onchange="calculateScore()">
+            <div class="w-5 h-5 rounded border-2 border-slate-500 flex-shrink-0 flex items-center justify-center mt-0.5 transition">
+              <svg class="w-3.5 h-3.5 text-slate-950 font-bold hidden fill-current" viewBox="0 0 20 20"><path d="M0 11l2-2 5 5L18 3l2 2L7 18z"/></svg>
+            </div>
+            <div class="space-y-0.5">
+              <div class="text-sm font-semibold text-slate-100">不要なサブスク（動画・ジム・アプリ等）を解約・整理している</div>
+              <p class="text-xs text-slate-400 leading-relaxed">過去1ヶ月利用していないサービスや重複している定額サービスを解約。</p>
+            </div>
+          </label>
+
+          <!-- Item 3 -->
+          <label class="custom-checkbox flex items-start gap-3.5 p-3 rounded-xl bg-slate-900/50 hover:bg-slate-900 border border-slate-700/50 hover:border-slate-600 transition cursor-pointer">
+            <input type="checkbox" data-zone="1" data-impact="80000" class="sr-only" onchange="calculateScore()">
+            <div class="w-5 h-5 rounded border-2 border-slate-500 flex-shrink-0 flex items-center justify-center mt-0.5 transition">
+              <svg class="w-3.5 h-3.5 text-slate-950 font-bold hidden fill-current" viewBox="0 0 20 20"><path d="M0 11l2-2 5 5L18 3l2 2L7 18z"/></svg>
+            </div>
+            <div class="space-y-0.5">
+              <div class="text-sm font-semibold text-slate-100">民間保険を見直し、公的保障＋最低限の掛け捨てに絞っている</div>
+              <p class="text-xs text-slate-400 leading-relaxed">高額療養費制度を前提とし、特約過多な医療保険や貯蓄型保険のコストをカット。</p>
+            </div>
+          </label>
+
+          <!-- Item 4 -->
+          <label class="custom-checkbox flex items-start gap-3.5 p-3 rounded-xl bg-slate-900/50 hover:bg-slate-900 border border-slate-700/50 hover:border-slate-600 transition cursor-pointer">
+            <input type="checkbox" data-zone="1" data-impact="40000" class="sr-only" onchange="calculateScore()">
+            <div class="w-5 h-5 rounded border-2 border-slate-500 flex-shrink-0 flex items-center justify-center mt-0.5 transition">
+              <svg class="w-3.5 h-3.5 text-slate-950 font-bold hidden fill-current" viewBox="0 0 20 20"><path d="M0 11l2-2 5 5L18 3l2 2L7 18z"/></svg>
+            </div>
+            <div class="space-y-0.5">
+              <div class="text-sm font-semibold text-slate-100">自動車保険をネット型保険に変更し補償を最適化している</div>
+              <p class="text-xs text-slate-400 leading-relaxed">代理店型からネット通販型へ変更し、不要な車両保険特約などを見直し。</p>
+            </div>
+          </label>
+
+          <!-- Item 5 -->
+          <label class="custom-checkbox flex items-start gap-3.5 p-3 rounded-xl bg-slate-900/50 hover:bg-slate-900 border border-slate-700/50 hover:border-slate-600 transition cursor-pointer">
+            <input type="checkbox" data-zone="1" data-impact="20000" class="sr-only" onchange="calculateScore()">
+            <div class="w-5 h-5 rounded border-2 border-slate-500 flex-shrink-0 flex items-center justify-center mt-0.5 transition">
+              <svg class="w-3.5 h-3.5 text-slate-950 font-bold hidden fill-current" viewBox="0 0 20 20"><path d="M0 11l2-2 5 5L18 3l2 2L7 18z"/></svg>
+            </div>
+            <div class="space-y-0.5">
+              <div class="text-sm font-semibold text-slate-100">電気・ガスの新料金プラン比較や変更を行っている</div>
+              <p class="text-xs text-slate-400 leading-relaxed">電力・都市ガスのセット割引や新電力会社への切り替えを検討・実施。</p>
+            </div>
+          </label>
+
+        </div>
+      </div>
+
+      <!-- Zone 2 -->
+      <div class="bg-slate-800/80 rounded-2xl border border-slate-700/80 overflow-hidden shadow-xl print-shadow-none">
+        <div class="bg-gradient-to-r from-blue-950/80 to-slate-800 px-6 py-4 border-b border-slate-700/80 flex items-center justify-between">
+          <div class="flex items-center space-x-3">
+            <span class="w-8 h-8 rounded-lg bg-blue-500/20 text-blue-400 flex items-center justify-center font-bold text-sm border border-blue-500/30">Z2</span>
+            <h2 class="text-base sm:text-lg font-bold text-white">ゾーン2：税金・制度のフル活用</h2>
+          </div>
+          <span class="text-xs text-blue-400 font-medium bg-blue-950 px-2.5 py-1 rounded-full border border-blue-800">手取りの最大化</span>
+        </div>
+
+        <div class="p-4 sm:p-6 space-y-4">
+
+          <!-- Item 6 -->
+          <label class="custom-checkbox flex items-start gap-3.5 p-3 rounded-xl bg-slate-900/50 hover:bg-slate-900 border border-slate-700/50 hover:border-slate-600 transition cursor-pointer">
+            <input type="checkbox" data-zone="2" data-impact="50000" class="sr-only" onchange="calculateScore()">
+            <div class="w-5 h-5 rounded border-2 border-slate-500 flex-shrink-0 flex items-center justify-center mt-0.5 transition">
+              <svg class="w-3.5 h-3.5 text-slate-950 font-bold hidden fill-current" viewBox="0 0 20 20"><path d="M0 11l2-2 5 5L18 3l2 2L7 18z"/></svg>
+            </div>
+            <div class="space-y-0.5">
+              <div class="text-sm font-semibold text-slate-100 flex items-center gap-2 flex-wrap">
+                ふるさと納税を上限まで使い切り、日用品・米等を選んでいる
+                <span class="text-[10px] bg-blue-500/10 text-blue-400 px-2 py-0.5 rounded border border-blue-500/20">実質節約</span>
+              </div>
+              <p class="text-xs text-slate-400 leading-relaxed">ワンストップ特例または確定申告を行い、トイレットペーパー等で生活費を削減。</p>
+            </div>
+          </label>
+
+          <!-- Item 7 -->
+          <label class="custom-checkbox flex items-start gap-3.5 p-3 rounded-xl bg-slate-900/50 hover:bg-slate-900 border border-slate-700/50 hover:border-slate-600 transition cursor-pointer">
+            <input type="checkbox" data-zone="2" data-impact="60000" class="sr-only" onchange="calculateScore()">
+            <div class="w-5 h-5 rounded border-2 border-slate-500 flex-shrink-0 flex items-center justify-center mt-0.5 transition">
+              <svg class="w-3.5 h-3.5 text-slate-950 font-bold hidden fill-current" viewBox="0 0 20 20"><path d="M0 11l2-2 5 5L18 3l2 2L7 18z"/></svg>
+            </div>
+            <div class="space-y-0.5">
+              <div class="text-sm font-semibold text-slate-100">iDeCo（個人型確定拠出年金）で所得控除を活用している</div>
+              <p class="text-xs text-slate-400 leading-relaxed">掛金全額が所得控除になる効果を活用し、節税しながら老後資金を積み立て。</p>
+            </div>
+          </label>
+
+          <!-- Item 8 -->
+          <label class="custom-checkbox flex items-start gap-3.5 p-3 rounded-xl bg-slate-900/50 hover:bg-slate-900 border border-slate-700/50 hover:border-slate-600 transition cursor-pointer">
+            <input type="checkbox" data-zone="2" data-impact="20000" class="sr-only" onchange="calculateScore()">
+            <div class="w-5 h-5 rounded border-2 border-slate-500 flex-shrink-0 flex items-center justify-center mt-0.5 transition">
+              <svg class="w-3.5 h-3.5 text-slate-950 font-bold hidden fill-current" viewBox="0 0 20 20"><path d="M0 11l2-2 5 5L18 3l2 2L7 18z"/></svg>
+            </div>
+            <div class="space-y-0.5">
+              <div class="text-sm font-semibold text-slate-100">会社の福利厚生・資格手当・健康診断等をフル活用している</div>
+              <p class="text-xs text-slate-400 leading-relaxed">リロクラブ等のカフェテリアプラン、資格取得お祝い金、人間ドック補助の申請。</p>
+            </div>
+          </label>
+
+        </div>
+      </div>
+
+      <!-- Zone 3 -->
+      <div class="bg-slate-800/80 rounded-2xl border border-slate-700/80 overflow-hidden shadow-xl print-shadow-none">
+        <div class="bg-gradient-to-r from-purple-950/80 to-slate-800 px-6 py-4 border-b border-slate-700/80 flex items-center justify-between">
+          <div class="flex items-center space-x-3">
+            <span class="w-8 h-8 rounded-lg bg-purple-500/20 text-purple-400 flex items-center justify-center font-bold text-sm border border-purple-500/30">Z3</span>
+            <h2 class="text-base sm:text-lg font-bold text-white">ゾーン3：ポイ活＆キャッシュレス</h2>
+          </div>
+          <span class="text-xs text-purple-400 font-medium bg-purple-950 px-2.5 py-1 rounded-full border border-purple-800">還元ルート構築</span>
+        </div>
+
+        <div class="p-4 sm:p-6 space-y-4">
+
+          <!-- Item 9 -->
+          <label class="custom-checkbox flex items-start gap-3.5 p-3 rounded-xl bg-slate-900/50 hover:bg-slate-900 border border-slate-700/50 hover:border-slate-600 transition cursor-pointer">
+            <input type="checkbox" data-zone="3" data-impact="25000" class="sr-only" onchange="calculateScore()">
+            <div class="w-5 h-5 rounded border-2 border-slate-500 flex-shrink-0 flex items-center justify-center mt-0.5 transition">
+              <svg class="w-3.5 h-3.5 text-slate-950 font-bold hidden fill-current" viewBox="0 0 20 20"><path d="M0 11l2-2 5 5L18 3l2 2L7 18z"/></svg>
+            </div>
+            <div class="space-y-0.5">
+              <div class="text-sm font-semibold text-slate-100">基本還元率1.0%以上のメインクレジットカードを使っている</div>
+              <p class="text-xs text-slate-400 leading-relaxed">年会費無料・高還元（楽天、三井住友、リクルートカード等）へ決済を一括化。</p>
+            </div>
+          </label>
+
+          <!-- Item 10 -->
+          <label class="custom-checkbox flex items-start gap-3.5 p-3 rounded-xl bg-slate-900/50 hover:bg-slate-900 border border-slate-700/50 hover:border-slate-600 transition cursor-pointer">
+            <input type="checkbox" data-zone="3" data-impact="20000" class="sr-only" onchange="calculateScore()">
+            <div class="w-5 h-5 rounded border-2 border-slate-500 flex-shrink-0 flex items-center justify-center mt-0.5 transition">
+              <svg class="w-3.5 h-3.5 text-slate-950 font-bold hidden fill-current" viewBox="0 0 20 20"><path d="M0 11l2-2 5 5L18 3l2 2L7 18z"/></svg>
+            </div>
+            <div class="space-y-0.5">
+              <div class="text-sm font-semibold text-slate-100">経済圏（Vポイント/楽天/PayPay）を1〜2つに絞って集中させている</div>
+              <p class="text-xs text-slate-400 leading-relaxed">ポイントの分散を防ぎ、期間限定ポイントも含めて無駄なく完全消費。</p>
+            </div>
+          </label>
+
+          <!-- Item 11 -->
+          <label class="custom-checkbox flex items-start gap-3.5 p-3 rounded-xl bg-slate-900/50 hover:bg-slate-900 border border-slate-700/50 hover:border-slate-600 transition cursor-pointer">
+            <input type="checkbox" data-zone="3" data-impact="15000" class="sr-only" onchange="calculateScore()">
+            <div class="w-5 h-5 rounded border-2 border-slate-500 flex-shrink-0 flex items-center justify-center mt-0.5 transition">
+              <svg class="w-3.5 h-3.5 text-slate-950 font-bold hidden fill-current" viewBox="0 0 20 20"><path d="M0 11l2-2 5 5L18 3l2 2L7 18z"/></svg>
+            </div>
+            <div class="space-y-0.5">
+              <div class="text-sm font-semibold text-slate-100">ネット購入や旅行予約でポイントサイト（ハピタス等）を経由している</div>
+              <p class="text-xs text-slate-400 leading-relaxed">通常のクレカポイント＋サイト独自の二重取りルートを日常化。</p>
+            </div>
+          </label>
+
+        </div>
+      </div>
+
+      <!-- Zone 4 -->
+      <div class="bg-slate-800/80 rounded-2xl border border-slate-700/80 overflow-hidden shadow-xl print-shadow-none">
+        <div class="bg-gradient-to-r from-amber-950/80 to-slate-800 px-6 py-4 border-b border-slate-700/80 flex items-center justify-between">
+          <div class="flex items-center space-x-3">
+            <span class="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center font-bold text-sm border border-amber-500/30">Z4</span>
+            <h2 class="text-base sm:text-lg font-bold text-white">ゾーン4：資産形成・自動化</h2>
+          </div>
+          <span class="text-xs text-amber-400 font-medium bg-amber-950 px-2.5 py-1 rounded-full border border-amber-800">資産爆増フェーズ</span>
+        </div>
+
+        <div class="p-4 sm:p-6 space-y-4">
+
+          <!-- Item 12 -->
+          <label class="custom-checkbox flex items-start gap-3.5 p-3 rounded-xl bg-slate-900/50 hover:bg-slate-900 border border-slate-700/50 hover:border-slate-600 transition cursor-pointer">
+            <input type="checkbox" data-zone="4" data-impact="150000" class="sr-only" onchange="calculateScore()">
+            <div class="w-5 h-5 rounded border-2 border-slate-500 flex-shrink-0 flex items-center justify-center mt-0.5 transition">
+              <svg class="w-3.5 h-3.5 text-slate-950 font-bold hidden fill-current" viewBox="0 0 20 20"><path d="M0 11l2-2 5 5L18 3l2 2L7 18z"/></svg>
+            </div>
+            <div class="space-y-0.5">
+              <div class="text-sm font-semibold text-slate-100 flex items-center gap-2 flex-wrap">
+                新NISA口座を開設し、つみたて枠を設定している
+                <span class="text-[10px] bg-amber-500/10 text-amber-400 px-2 py-0.5 rounded border border-amber-500/20">必須</span>
+              </div>
+              <p class="text-xs text-slate-400 leading-relaxed">非課税枠を活用し、毎月継続的な自動買付を設定済み。</p>
+            </div>
+          </label>
+
+          <!-- Item 13 -->
+          <label class="custom-checkbox flex items-start gap-3.5 p-3 rounded-xl bg-slate-900/50 hover:bg-slate-900 border border-slate-700/50 hover:border-slate-600 transition cursor-pointer">
+            <input type="checkbox" data-zone="4" data-impact="50000" class="sr-only" onchange="calculateScore()">
+            <div class="w-5 h-5 rounded border-2 border-slate-500 flex-shrink-0 flex items-center justify-center mt-0.5 transition">
+              <svg class="w-3.5 h-3.5 text-slate-950 font-bold hidden fill-current" viewBox="0 0 20 20"><path d="M0 11l2-2 5 5L18 3l2 2L7 18z"/></svg>
+            </div>
+            <div class="space-y-0.5">
+              <div class="text-sm font-semibold text-slate-100">低コストインデックスファンド（オルカン / S&amp;P500等）を選んでいる</div>
+              <p class="text-xs text-slate-400 leading-relaxed">信託報酬が0.1%以下の低コスト優良ファンドに絞って積立。</p>
+            </div>
+          </label>
+
+          <!-- Item 14 -->
+          <label class="custom-checkbox flex items-start gap-3.5 p-3 rounded-xl bg-slate-900/50 hover:bg-slate-900 border border-slate-700/50 hover:border-slate-600 transition cursor-pointer">
+            <input type="checkbox" data-zone="4" data-impact="30000" class="sr-only" onchange="calculateScore()">
+            <div class="w-5 h-5 rounded border-2 border-slate-500 flex-shrink-0 flex items-center justify-center mt-0.5 transition">
+              <svg class="w-3.5 h-3.5 text-slate-950 font-bold hidden fill-current" viewBox="0 0 20 20"><path d="M0 11l2-2 5 5L18 3l2 2L7 18z"/></svg>
+            </div>
+            <div class="space-y-0.5">
+              <div class="text-sm font-semibold text-slate-100">給与日にあわせて自動振替される「先取り投資・貯蓄」になっている</div>
+              <p class="text-xs text-slate-400 leading-relaxed">意志力に頼らず、給与振込日に自動で口座引落・運用に回す仕組み。</p>
+            </div>
+          </label>
+
+          <!-- Item 15 -->
+          <label class="custom-checkbox flex items-start gap-3.5 p-3 rounded-xl bg-slate-900/50 hover:bg-slate-900 border border-slate-700/50 hover:border-slate-600 transition cursor-pointer">
+            <input type="checkbox" data-zone="4" data-impact="30000" class="sr-only" onchange="calculateScore()">
+            <div class="w-5 h-5 rounded border-2 border-slate-500 flex-shrink-0 flex items-center justify-center mt-0.5 transition">
+              <svg class="w-3.5 h-3.5 text-slate-950 font-bold hidden fill-current" viewBox="0 0 20 20"><path d="M0 11l2-2 5 5L18 3l2 2L7 18z"/></svg>
+            </div>
+            <div class="space-y-0.5">
+              <div class="text-sm font-semibold text-slate-100">生活防衛資金（生活費3〜6ヶ月分）を確保した上で運用している</div>
+              <p class="text-xs text-slate-400 leading-relaxed">急な支出や暴落時でも狼狽売りしないよう、現金の安全域を保持。</p>
+            </div>
+          </label>
+
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Live Interactive Diagnosis Result Card -->
+    <section id="result-section" class="bg-gradient-to-br from-slate-800 via-navy-900 to-slate-950 rounded-3xl border-2 border-emerald-500/50 p-6 sm:p-8 space-y-6 shadow-2xl relative overflow-hidden transition-all duration-300">
+      
+      <!-- Background Ambient Glow -->
+      <div class="absolute -top-24 -right-24 w-60 h-60 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+      <!-- Result Header -->
+      <div class="flex items-center justify-between border-b border-slate-700/80 pb-4">
+        <div>
+          <span class="text-xs font-bold text-emerald-400 uppercase tracking-widest bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20">AI 診断レポート</span>
+          <h2 class="text-xl sm:text-2xl font-black text-white mt-2">あなたのマネーリテラシー診断結果</h2>
+        </div>
+        <div class="text-right">
+          <div class="text-xs text-slate-400">総合スコア</div>
+          <div class="text-2xl sm:text-3xl font-extrabold text-emerald-400"><span id="res-score-count">0</span> / 15</div>
+        </div>
+      </div>
+
+      <!-- Rank & Loss Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        
+        <!-- Rank Card -->
+        <div class="bg-slate-900/90 rounded-2xl p-5 border border-slate-700/80 flex items-center space-x-4">
+          <div id="res-badge-icon" class="w-16 h-16 rounded-2xl bg-gradient-to-br from-amber-500 to-amber-700 flex items-center justify-center text-3xl text-slate-950 font-black shadow-lg">
+            C
+          </div>
+          <div>
+            <div class="text-xs text-slate-400 font-medium">現在のタイプ判定</div>
+            <div id="res-rank-title" class="text-lg font-bold text-white mt-0.5">伸びしろ巨大タイプ</div>
+            <p id="res-rank-desc" class="text-xs text-slate-300 mt-1 leading-relaxed">
+              まだまだ改善できる余地が大きく残っています！まずは固定費見直しから始めましょう。
+            </p>
+          </div>
+        </div>
+
+        <!-- Potential Savings Card -->
+        <div class="bg-slate-900/90 rounded-2xl p-5 border border-slate-700/80 flex flex-col justify-center">
+          <div class="text-xs text-slate-400 font-medium">年間改善ポテンシャル（見込み額）</div>
+          <div class="text-2xl sm:text-3xl font-black text-emerald-400 mt-1">
+            年間最大 <span id="res-potential-amount" class="underline decoration-emerald-500/50 underline-offset-4">60</span> 万円
+          </div>
+          <p class="text-xs text-slate-400 mt-1">未チェック項目を見直すことで節約・獲得できる見込み額です。</p>
+        </div>
+
+      </div>
+
+      <!-- Action Plan (Top 3 Recommendations) -->
+      <div class="space-y-3">
+        <h3 class="text-sm font-bold text-slate-200 flex items-center gap-2">
+          <i class="fa-solid fa-fire text-amber-400"></i> 今すぐ着手すべき優先アクション TOP 3
+        </h3>
+        <div id="action-plan-list" class="space-y-2">
+          <!-- Dynamically Generated via JS -->
+        </div>
+      </div>
+
+      <!-- Detailed Zone-by-Zone Advice -->
+      <div class="space-y-3">
+        <h3 class="text-sm font-bold text-slate-200 flex items-center gap-2">
+          <i class="fa-solid fa-list-check text-emerald-400"></i> ゾーン別・詳細アドバイス
+        </h3>
+        <div id="zone-advice-container" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <!-- Dynamically Generated via JS -->
+        </div>
+      </div>
+
+      <!-- Share & Action Buttons -->
+      <div class="pt-4 border-t border-slate-700/80 flex flex-col sm:flex-row gap-3 no-print">
+        <button onclick="shareOnX()" class="flex-1 bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-white font-bold py-3 px-4 rounded-xl transition shadow-lg flex items-center justify-center space-x-2">
+          <i class="fa-brands fa-x-twitter text-lg"></i>
+          <span>診断結果をXでシェアする</span>
+        </button>
+        <button onclick="window.print()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold py-3 px-5 rounded-xl border border-slate-700 transition flex items-center justify-center space-x-2">
+          <i class="fa-solid fa-file-pdf"></i>
+          <span>PDF / 印刷で保存</span>
+        </button>
+      </div>
+
+    </section>
+
+    <!-- Account & DM CTA Section -->
+    <div class="bg-gradient-to-r from-navy-950 via-slate-900 to-navy-950 rounded-2xl p-6 border border-emerald-500/30 text-center space-y-4 shadow-xl no-print">
+      <div class="w-16 h-16 rounded-full bg-gradient-to-tr from-brand-600 to-emerald-400 mx-auto flex items-center justify-center text-slate-950 font-black text-2xl shadow-lg border-2 border-emerald-400/50">
+        <i class="fa-solid fa-piggy-bank"></i>
+      </div>
+      <div>
+        <h3 class="text-lg font-bold text-white">さらに詳しい裏技や最適化ルートを限定配信中！</h3>
+        <p class="text-xs sm:text-sm text-slate-300 max-w-xl mx-auto mt-1 leading-relaxed">
+          Xアカウント（<span class="text-emerald-400 font-semibold">@tanetane2026</span>）をフォロー＆DMで「チェックリスト」と送信すると、図解シートやポイ活最安ルートをプレゼント中🎁
+        </p>
+      </div>
+      <div>
+        <a href="https://x.com/tanetane2026" target="_blank" rel="noopener noreferrer" class="inline-flex items-center space-x-2 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold px-6 py-3 rounded-xl transition shadow-lg text-sm">
+          <span>X（旧Twitter）でフォロー＆DMする</span>
+          <i class="fa-solid fa-arrow-up-right-from-square text-xs"></i>
+        </a>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-navy-950 border-t border-slate-800 py-6 text-center text-xs text-slate-500 no-print">
+    <div class="max-w-4xl mx-auto px-4 space-y-2">
+      <div>© 2026 T | エンジニアの資産形成術 (@tanetane2026). All Rights Reserved.</div>
+      <p class="text-[11px] text-slate-600">※本ツールは資産形成・節約のチェック・シミュレーション用です。投資や金融商品の決定はご自身の責任で行ってください。</p>
+    </div>
+  </footer>
+
+  <!-- Application Engine Script -->
+  <script>
+    // Diagnosis Data Structure & Logic
+    function calculateScore() {
+      const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+      let checkedCount = 0;
+      let totalPotentialLoss = 0;
+      
+      const zoneUnchecked = { 1: [], 2: [], 3: [], 4: [] };
+      const uncheckedImpactItems = [];
+
+      checkboxes.forEach(cb => {
+        const zone = cb.getAttribute('data-zone');
+        const impact = parseInt(cb.getAttribute('data-impact') || '0', 10);
+        const title = cb.closest('label').querySelector('.text-sm').innerText.trim();
+
+        if (cb.checked) {
+          checkedCount++;
+        } else {
+          totalPotentialLoss += impact;
+          zoneUnchecked[zone].push(title);
+          uncheckedImpactItems.push({ title, impact, zone });
+        }
+      });
+
+      // Sort unchecked items by potential impact (descending)
+      uncheckedImpactItems.sort((a, b) => b.impact - a.impact);
+
+      // UI Progress Updates
+      const totalCount = checkboxes.length;
+      const percentage = Math.round((checkedCount / totalCount) * 100);
+
+      document.getElementById('checked-count').innerText = checkedCount;
+      document.getElementById('progress-percent').innerText = percentage;
+      document.getElementById('progress-bar').style.width = percentage + '%';
+      document.getElementById('res-score-count').innerText = checkedCount;
+
+      // Grade Determination
+      let rank = 'C';
+      let rankTitle = '伸びしろ巨大タイプ';
+      let rankDesc = 'まだまだ改善できる余地が大きく残っています！まずは固定費見直しから着手しましょう。';
+      let rankBadgeColor = 'from-amber-500 to-amber-700';
+
+      if (checkedCount >= 13) {
+        rank = 'S';
+        rankTitle = 'マネー達人級';
+        rankDesc = '素晴らしい！資産形成の仕組み化がほぼ完璧です。最新のAI活用や節税ルートの深掘りを目指しましょう。';
+        rankBadgeColor = 'from-emerald-400 to-teal-600';
+      } else if (checkedCount >= 9) {
+        rank = 'A';
+        rankTitle = '上級資産家タイプ';
+        rankDesc = '基本設定はしっかり整っています。ポイ活の最安ルートやiDeCo・NISAの完全自動化でさらに伸ばせます！';
+        rankBadgeColor = 'from-sky-400 to-blue-600';
+      } else if (checkedCount >= 5) {
+        rank = 'B';
+        rankTitle = '標準チャレンジャータイプ';
+        rankDesc = 'マネーリテラシーの土台ができています。残っている高インパクトな項目（格安SIM・新NISA等）を攻略しましょう。';
+        rankBadgeColor = 'from-purple-500 to-indigo-700';
+      }
+
+      // Update Live Grade Header Badge & Result Card
+      document.getElementById('live-grade').innerText = rank;
+      
+      const badgeIcon = document.getElementById('res-badge-icon');
+      badgeIcon.innerText = rank;
+      badgeIcon.className = `w-16 h-16 rounded-2xl bg-gradient-to-br ${rankBadgeColor} flex items-center justify-center text-3xl text-slate-950 font-black shadow-lg`;
+
+      document.getElementById('res-rank-title').innerText = rankTitle;
+      document.getElementById('res-rank-desc').innerText = rankDesc;
+
+      // Update Potential Savings Amount (formatted in 万)
+      const potentialMan = Math.round(totalPotentialLoss / 10000);
+      document.getElementById('res-potential-amount').innerText = potentialMan;
+
+      // Render Top 3 Action Plan
+      const actionPlanList = document.getElementById('action-plan-list');
+      actionPlanList.innerHTML = '';
+
+      if (uncheckedImpactItems.length === 0) {
+        actionPlanList.innerHTML = `
+          <div class="bg-emerald-950/50 border border-emerald-500/30 text-emerald-300 p-3 rounded-xl text-xs flex items-center space-x-2">
+            <i class="fa-solid fa-circle-check text-emerald-400 text-sm"></i>
+            <span>全てのチェック項目をクリアしています！この状態を維持・継続していきましょう。</span>
+          </div>`;
+      } else {
+        const top3 = uncheckedImpactItems.slice(0, 3);
+        top3.forEach((item, index) => {
+          const itemMan = Math.round(item.impact / 10000);
+          actionPlanList.innerHTML += `
+            <div class="bg-slate-900/80 border border-slate-700/80 p-3 rounded-xl flex items-center justify-between text-xs">
+              <div class="flex items-center space-x-2">
+                <span class="w-5 h-5 rounded-full bg-amber-500/20 text-amber-400 font-bold flex items-center justify-center text-[11px]">${index + 1}</span>
+                <span class="text-slate-200 font-medium">${item.title}</span>
+              </div>
+              <span class="text-emerald-400 font-bold bg-emerald-950 px-2 py-0.5 rounded border border-emerald-800/80">
+                +約${itemMan}万円/年改善
+              </span>
+            </div>`;
+        });
+      }
+
+      // Render Zone Advice Cards
+      const adviceContainer = document.getElementById('zone-advice-container');
+      adviceContainer.innerHTML = '';
+
+      const zoneInfo = [
+        { id: 1, title: 'ゾーン1：固定費', color: 'emerald', advice: '格安SIMや保険の見直しは一度設定すれば生涯固定費が浮く「最高コスパ」の施策です。' },
+        { id: 2, title: 'ゾーン2：税金・制度', color: 'blue', advice: 'ふるさと納税やiDecoは国が用意した公認の節税ルート。手取り向上に直結します。' },
+        { id: 3, title: 'ゾーン3：ポイ活', color: 'purple', advice: '経済圏の一致とハピタス等の経由ルートを自動化し、無理なくポイントを蓄積しましょう。' },
+        { id: 4, title: 'ゾーン4：資産自動化', color: 'amber', advice: '新NISA×低コストファンド×先取り投資の自動ライン構築が資産形成の要です。' },
+      ];
+
+      zoneInfo.forEach(z => {
+        const uncheckedCount = zoneUnchecked[z.id].length;
+        const statusText = uncheckedCount === 0 ? '✨ 完璧に攻略済み' : `⚠️ 未達成 ${uncheckedCount} 項目あり`;
+        const statusColor = uncheckedCount === 0 ? 'text-emerald-400' : 'text-amber-400';
+
+        adviceContainer.innerHTML += `
+          <div class="bg-slate-900/70 border border-slate-700/70 p-4 rounded-xl space-y-1.5">
+            <div class="flex justify-between items-center text-xs">
+              <span class="font-bold text-white">${z.title}</span>
+              <span class="${statusColor} font-semibold">${statusText}</span>
+            </div>
+            <p class="text-[11px] text-slate-400 leading-relaxed">${z.advice}</p>
+          </div>`;
+      });
+    }
+
+    // Share Result to X (Twitter)
+    function shareOnX() {
+      const score = document.getElementById('checked-count').innerText;
+      const grade = document.getElementById('live-grade').innerText;
+      const potential = document.getElementById('res-potential-amount').innerText;
+
+      const text = `マネー徹底チェックリスト（@tanetane2026）を試しました！\n\n📊 診断結果: ランク【${grade}】 (${score}/15項目クリア)\n💡 年間改善ポテンシャル: 最大 ${potential} 万円！\n\nあなたもマネーリテラシーチェックで資産の無駄を見直してみよう！👇`;
+      const url = window.location.href;
+      
+      const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`;
+      window.open(twitterUrl, '_blank');
+    }
+
+    // Initialize logic on page load
+    window.onload = function() {
+      calculateScore();
+    };
+  </script>
+
+</body>
+</html>
